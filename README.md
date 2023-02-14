@@ -76,7 +76,7 @@ const results = await indexerClient.searchForTransactions().applicationID(appId)
 
 const results = await indexerClient.searchForTransactions().
             .currencyGreaterThan(100000000).
-            .do()```
+            .do()
 
 
 // Helper function: flattenTransactions
@@ -173,3 +173,4 @@ function flattenTxns(searchResult) {
         "tx-type": "appl"
     }
 ]
+```

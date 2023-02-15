@@ -31,7 +31,7 @@
 ```javascript
 // Note that all of parameter calls like address, afterTime, etc.
 // can be combined in different ways other than the exact examples shown
-// here. Especially note that addressRole is OPTIONAL.
+// here. Especially note that addressRole is OPTIONAL as are the others.
 
 // Search results will have a property "transactions" with an array
 // The objects in the array have different fields depending on the type

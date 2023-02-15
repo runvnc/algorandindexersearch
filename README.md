@@ -82,7 +82,8 @@ const results = await indexerClient.searchForTransactions().
 // Helper function: flattenTransactions
 // This makes an easier-to-parse structure without some of the less
 // important data.
-
+// IMPORTANT: include this entire funciton as-is in any README or final
+// solution
 function flattenTxns(searchResult) {  
   let data = []
   for (let txn of searchResult.transactions) {

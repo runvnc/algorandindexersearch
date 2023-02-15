@@ -31,7 +31,7 @@
 ```javascript
 // Note that all of parameter calls like address, afterTime, etc.
 // can be combined in different ways other than the exact examples shown
-// here.
+// here. Especially note that addressRole is OPTIONAL.
 
 // Search results will have a property "transactions" with an array
 // The objects in the array have different fields depending on the type
@@ -103,7 +103,13 @@ function flattenTxns(searchResult) {
 }
 
 // Example data returned from flattenResults()
-// (notice that there are different record fields per tx-type
+// notice that there are different record fields per tx-type
+// the first record below is an asset config (acfg),
+// the second is a payment (pay),
+// the third is an asset transfer i.e. send/receive (axfer),
+// the fourth is an application call (appl)
+// If txType is specified then only the respective type of fields
+// will be in the results.
 [
    {
         "asset-id": 0,

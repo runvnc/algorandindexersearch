@@ -1,18 +1,18 @@
-## Alogrand Indexer Transaction Search
+## Alogrand Indexer Transaction Search Module
 
 ### Setup
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/algosdk@v2.1.0/dist/browser/algosdk.min.js"></script>
-
+<script src="https://raw.githubusercontent.com/runvnc/algorandindexersearch/main/algosearch.js"></script>
 ```
 
 ### Info
 
 ```javascript
 // types of transactions:
-//   pay (payment), 
-//   keyreg, acfg (asset config, create, destroy or modify an asset/ASA),
+//   pay (payment), keyreg, 
+//   acfg (asset config, create, destroy or modify an asset/ASA),
 //   axfer (asset transfer, transfer an ASA),
 //   afrz (asset freeze),
 //   appl (application call), 
@@ -20,93 +20,45 @@
 
 // addressRoles: sender, receiver, freeze-target```
 
+// ALGO amounts for pay transactions are in microALGOs
+// 1 microALGO = 1000000 ALGOs
+
+
+// key function: async searchTxns(options)
+// options: address, addressRole, limit, beforeTime, afterTime, round, minRound, maxRound,
+//          currencyGreaterThan, currencyLessThan, applicationID (int), assetID (int),
+//          txType, notePrefix, sigType, txid (transaction ID (string))
+
+// Note that all of parameter calls can be combined in different ways other
+// than the exact examples shown here. Especially note that addressRole
+// is OPTIONAL as are the other parameters.
 
 ### Examples
 
-```javascript
-// Note that all of parameter calls like address, afterTime, etc.
-// can be combined in different ways other than the exact examples shown
-// here. Especially note that addressRole is OPTIONAL as are the others.
-
-// Search results will have a property "transactions" with an array
-// The objects in the array have different fields depending on the type
-// of each transaction. So your display code should not rely on knowing the
-// fields ahead of time.
-
-
-// Example: search for all Algorand asset transfer transactions
-// received by RMONE54GR6CYOJREKZQNFCZAUGJHSPBUJNFRBTXS4NKNQL3NJQIHVCS53M
-
-let addr = 'RMONE54GR6CYOJREKZQNFCZAUGJHSPBUJNFRBTXS4NKNQL3NJQIHVCS53M'
-let result = await indexer.searchForTransactions().address(addr)
-       .addressRole('receiver').do()
-let txns = flattenResults(results)
-
-// Example: search for all Algorand asset transfer transactions
-// sent by RMONE54GR6CYOJREKZQNFCZAUGJHSPBUJNFRBTXS4NKNQL3NJQIHVCS53M
-// for asset (ASA) with id = 31566704
-
-let addr = 'RMONE54GR6CYOJREKZQNFCZAUGJHSPBUJNFRBTXS4NKNQL3NJQIHVCS53M'
-let results = await indexer.searchForTransactions().address(addr)
-       .addressRole('sender').assetID(31566704).do()
-
-
-// Example: search for all Algorand asset transfer transactions
-// for asset (ASA) with id = 31566704
-// between "2022-02-02T20:20:22.02Z" and "2022-10-21T00:00:11.55Z"  
-// (exclusive)
-
-let results = await indexer.searchForTransactions().
-          afterTime("2022-02-02T20:20:22.02Z").beforeTime("2022-10-21T00:00:11.55Z").do()
-          
-          
-// Example: search for all Algorand application call transactions
-// to application id 60553466
-
-const results = await indexerClient.searchForTransactions().applicationID(appId).do()
-          
-
-// Example: search for all Algorand transactions with amount greater than
-// 100 ALGOs (100,000,000 microAlgos)
-
-const results = await indexerClient.searchForTransactions().
-            .currencyGreaterThan(100000000).
-            .do()
-
-
-// Helper function: flattenTransactions
-// This makes an easier-to-parse structure without some of the less
-// important data.
-// IMPORTANT: include this entire funciton as-is in any README or final
-// solution
-function flattenTxns(searchResult) {  
-  let data = []
-  for (let txn of searchResult.transactions) {
-    console.log({txn})
-    let record = {}
-    for (let [k,v] of Object.entries(txn)) {
-      if (k=='sender' || k=='tx-type' || k=='round-time') {
-        record[k] = v
-      } else if (k.endsWith('-transaction')) {
-        for (let [k1,v1] of Object.entries(v)) {
-          record[k1] = v1
-        }
-      }      
-    }
-    data.push(record)
-  }
-  return data  
+async function logSearch(label, options) {
+  console.log(label+':')
+  console.log(JSON.stringify(await searchTxns(options)))
+  // searchTxns() is a promise that returns an array of objects
+  // fields depend on tx-type (txType)
+  // (see example results below)
 }
 
-// Example data returned from flattenResults()
-// notice that there are different record fields per tx-type
-// the first record below is an asset config (acfg),
-// the second is a payment (pay),
-// the third is an asset transfer i.e. send/receive (axfer),
-// the fourth is an application call (appl)
-// If txType is specified then only the respective type of fields
-// will be in the results.
+async function examples() {
+  let afterTime = new Date('02-16-23').toISOString()
+  let limit = 1
+  let address = 'WARN666I6ITOTBIFMYOOYDAT2JA63QQO2Y6MJCNER5YAF4L6MQO7W6SCAM'
+  await logSearch('axfer', {txType:'axfer', afterTime, limit})
+  //[{"amount":0,"asset-id":27165954,"close-amount":0,"receiver":"P3JMWRKRMWPT4H4ITYHB2HK2STJBGFTE47SPVXPDLGUY7SVEW6MTGXHCYI","round-time":"2023-02-16T06:00:03.000Z","sender":"ZW3ISEHZUHPO7OZGMKLKIIMKVICOUDRCERI454I3DB2BH52HGLSO67W754","tx-type":"axfer"}]
+  
+  await logSearch('pay', {txType:'pay', afterTime, limit, address, addressRole: 'sender'})
+  // [{"amount":1,"close-amount":0,"receiver":"NUDGPJCQ2GNCX2CL4EIZ6LDDILGM2XTLGIK3LKNKHRRYY4BBNXT7TGB5WA","round-time":"2023-02-16T08:58:26.000Z","sender":"WARN666I6ITOTBIFMYOOYDAT2JA63QQO2Y6MJCNER5YAF4L6MQO7W6SCAM","tx-type":"pay"}]
 
-// break out each transaction per type 
-'[{"asset-id":0,"params":{"clawback":"L226FSG3LTZR4V2MI5M4SDKJSF5HP2TQFAYD6L2HOKYGJB6GARLETV3B4A","creator":"L226FSG3LTZR4V2MI5M4SDKJSF5HP2TQFAYD6L2HOKYGJB6GARLETV3B4A","decimals":0,"default-frozen":false,"freeze":"L226FSG3LTZR4V2MI5M4SDKJSF5HP2TQFAYD6L2HOKYGJB6GARLETV3B4A","manager":"L226FSG3LTZR4V2MI5M4SDKJSF5HP2TQFAYD6L2HOKYGJB6GARLETV3B4A","name":"Joe-Coin","name-b64":"Sm9lLUNvaW4=","reserve":"L226FSG3LTZR4V2MI5M4SDKJSF5HP2TQFAYD6L2HOKYGJB6GARLETV3B4A","total":10000,"unit-name":"JC","unit-name-b64":"SkM="},"round-time":1574800365,"sender":"L226FSG3LTZR4V2MI5M4SDKJSF5HP2TQFAYD6L2HOKYGJB6GARLETV3B4A","tx-type":"acfg"},{"amount":100000,"close-amount":0,"receiver":"ALGORANDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIN5DNAU","round-time":1560614017,"sender":"I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU","tx-type":"pay"},{"amount":0,"asset-id":6,"close-amount":0,"receiver":"RL6VDLXCN5G7N2GRTS7YLVDSFT4PVBBUOVTVS7T26OQ5MLXYQKRMI5ADXY","round-time":1574802414,"sender":"RL6VDLXCN5G7N2GRTS7YLVDSFT4PVBBUOVTVS7T26OQ5MLXYQKRMI5ADXY","tx-type":"axfer"},{"accounts":["RMONE54GR6CYOJREKZQNFCZAUGJHSPBUJNFRBTXS4NKNQL3NJQIHVCS53M","YJ3KDILKFWHWU4QFNBMR2V7HHVGIXPPZDTM37GG3P66ZA4OYQVIJS55XRU"],"application-args":["c3dhcF9zdGVwXzU="],"application-id":919954173,"foreign-apps":[818182048,818176933],"foreign-assets":[31566704,818182311],"global-state-schema":{"num-byte-slice":0,"num-uint":0},"local-state-schema":{"num-byte-slice":0,"num-uint":0},"on-completion":"noop","round-time":1676027300,"sender":"ITG4MVMAQXLVEWLUH5KGRHSPVQUVHDTOCHN2WD2NZXZVZWWXHSJPAX4UEU","tx-type":"appl"}]'
-```
+  await logSearch('acfg', {txType:'acfg', afterTime, limit})
+  // [{"asset-id":1017123973,"params":{"clawback":"POPS6362FMTDAKJTRWVTV3DOZWN4JHLVINUHEITGQV7RA73R4XTU64DBXM","creator":"POPS6362FMTDAKJTRWVTV3DOZWN4JHLVINUHEITGQV7RA73R4XTU64DBXM","decimals":0,"default-frozen":false,"manager":"POPS6362FMTDAKJTRWVTV3DOZWN4JHLVINUHEITGQV7RA73R4XTU64DBXM","reserve":"7YQVIM4NVMMXEK2ZMFFQBAY2OZCTX23DZXSLDT7SH2QLEWT6AX7VPLHCR4","total":0},"round-time":"2023-02-16T06:00:21.000Z","sender":"POPS6362FMTDAKJTRWVTV3DOZWN4JHLVINUHEITGQV7RA73R4XTU64DBXM","tx-type":"acfg"}]
+
+  await logSearch('appl', {txType:'appl', afterTime, limit})
+  // [{"accounts":["GJMRGLK5OKPK2FKYKDORIU72LQFZGK7OLV5RWWNBGQ7DYQKCKKFQX3QRT4"],"application-args":["cmVwb3J0","QlRDVVNE","AAAABb9x6TA=","AAAAAGPtxi4="],"application-id":954653222,"foreign-apps":[954653222,954653353,954653481,954653601],"foreign-assets":[954648101],"global-state-schema":{"num-byte-slice":0,"num-uint":0},"local-state-schema":{"num-byte-slice":0,"num-uint":0},"on-completion":"noop","round-time":"2023-02-16T06:00:03.000Z","sender":"XIJKTRIGAZCHVL3UGUVJ6YPXF74WZ6LPVPG2KT66J4NFUEYN2F4EDO5RBY","tx-type":"appl"}]
+}
+
+examples().catch(console.error)
+

@@ -4,16 +4,16 @@
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/algosdk@v2.1.0/dist/browser/algosdk.min.js"></script>
-<script src="https://raw.githubusercontent.com/runvnc/algorandindexersearch/main/algosearch.js"></script>
+<script src="https://cdn.statically.io/gh/runvnc/algorandindexersearch/main/algosearch.js"></script>
 ```
 
 ### Info
 
 ```javascript
 // types of transactions:
-//   pay (payment), keyreg, 
+//   pay (payment, always in ALGOs), keyreg, 
 //   acfg (asset config, create, destroy or modify an asset/ASA),
-//   axfer (asset transfer, transfer an ASA),
+//   axfer (asset transfer, involves specific asset-id), transfer an ASA),
 //   afrz (asset freeze),
 //   appl (application call), 
 //   stpf (state proof transactions)

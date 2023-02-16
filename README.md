@@ -44,10 +44,13 @@ async function logSearch(label, options) {
 }
 
 async function examples() {
+  // IMPORTANT: Note that these are just examples, nothing here is required.
   let afterTime = new Date('02-16-23').toISOString()
   let limit = 1
   let address = 'WARN666I6ITOTBIFMYOOYDAT2JA63QQO2Y6MJCNER5YAF4L6MQO7W6SCAM'
+  // Note: normally use searchTxns instead of logSearch, unless you are just console.logging the results.
   await logSearch('axfer', {txType:'axfer', afterTime, limit})
+  // IMPORTANT: Note the resulting properties are different for each different type of transaction.
   //[{"amount":0,"asset-id":27165954,"close-amount":0,"receiver":"P3JMWRKRMWPT4H4ITYHB2HK2STJBGFTE47SPVXPDLGUY7SVEW6MTGXHCYI","round-time":"2023-02-16T06:00:03.000Z","sender":"ZW3ISEHZUHPO7OZGMKLKIIMKVICOUDRCERI454I3DB2BH52HGLSO67W754","tx-type":"axfer"}]
   
   await logSearch('pay', {txType:'pay', afterTime, limit, address, addressRole: 'sender'})

@@ -3,14 +3,9 @@
 ### Setup
 
 ```html
-<script
-  src="https://cdn.jsdelivr.net/npm/algosdk@v2.1.0/dist/browser/algosdk.min.js"
-  integrity="sha384-SwM9TdxjIFpIT2FUfchrQvtwi748UI0q12Zi32yd6BM8D/lCTumPhw0+BrPC0yd0"
-  crossorigin="anonymous"
-></script>
-```
+<script src="https://cdn.jsdelivr.net/npm/algosdk@v2.1.0/dist/browser/algosdk.min.js"></script>
 
-```const indexer = new algosdk.Indexer('', 'https://algoindexer.algoexplorerapi.io', '')```
+```
 
 ### Info
 

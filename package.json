@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@rollup/plugin-commonjs": "^24.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "algosdk": "^2.1.0"
+  }
+}
